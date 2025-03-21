@@ -11,6 +11,7 @@ namespace QuizzPractice.Mapper
         {
             CreateMap<User, UserResponse>().ReverseMap();
             CreateMap<Subject, SubjectResponse>().ReverseMap();
+
             CreateMap<Question, QuestionResponse>().ReverseMap();
             CreateMap<Quiz, GetQuizResponse>().ReverseMap();
 
@@ -18,6 +19,11 @@ namespace QuizzPractice.Mapper
 
 
             CreateMap<Quiz, UpdateQuizRequest>().ReverseMap();
+
+            CreateMap<Subject, CreateSubjectRequest>().ReverseMap();
+            CreateMap<Subject, UpdateSubjectRequest>().ReverseMap();
+            CreateMap<Subject, GetSubjectResponse>().ReverseMap();
+
         }
     }
 }

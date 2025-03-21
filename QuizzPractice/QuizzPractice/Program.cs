@@ -18,6 +18,7 @@ builder.Services.AddSingleton(mapper);
 
 
 builder.Services.AddTransient<IQuizService, QuizService>();
+builder.Services.AddTransient<ISubjectService, SubjectService>();
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<QuizDbContext>(options =>
@@ -63,8 +64,10 @@ static IEdmModel GetEdmModel()
     var builder = new ODataConventionModelBuilder();
 
     var quizzes = builder.EntitySet<GetQuizResponse>("Quiz").EntityType;
-
     quizzes.HasKey(u => u.QuizId);
+
+    var subjects = builder.EntitySet<GetSubjectResponse>("Subject").EntityType;
+    subjects.HasKey(k => k.SubjectId);
 
     return builder.GetEdmModel();
 }
