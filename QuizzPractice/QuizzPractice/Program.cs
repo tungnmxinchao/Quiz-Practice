@@ -1,7 +1,11 @@
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
 using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OData.Edm;
 using Microsoft.OData.ModelBuilder;
 using QuizzPractice.Db;
@@ -19,10 +23,44 @@ builder.Services.AddSingleton(mapper);
 
 builder.Services.AddTransient<IQuizService, QuizService>();
 builder.Services.AddTransient<ISubjectService, SubjectService>();
+builder.Services.AddTransient<IQuestionService, QuestionService>();
+builder.Services.AddTransient<IResultService, ResultService>();
+builder.Services.AddTransient<IUserService, UserService>();
+
+
+
+var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        RoleClaimType = ClaimTypes.Role,
+        ValidateAudience = false
+    };
+});
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Teacher", policy => policy.RequireRole("teacher"));
+    options.AddPolicy("Student", policy => policy.RequireRole("student"));
+});
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<QuizDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DB")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DB"))
+    .EnableSensitiveDataLogging()
+    );
 
 builder.Services.AddControllers()
     .AddOData(opt => opt
@@ -53,6 +91,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
@@ -68,6 +107,12 @@ static IEdmModel GetEdmModel()
 
     var subjects = builder.EntitySet<GetSubjectResponse>("Subject").EntityType;
     subjects.HasKey(k => k.SubjectId);
+
+    var questions = builder.EntitySet<GetQuestionResponse>("Question").EntityType;
+    questions.HasKey(k => k.QuestionId);
+
+    var results = builder.EntitySet<GetResultsResponse>("Result").EntityType;
+    results.HasKey(r => r.ResultId);
 
     return builder.GetEdmModel();
 }

@@ -2,29 +2,26 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using QuizzPractice.DTOs.Request;
-using QuizzPractice.DTOs.Response;
 using QuizzPractice.Interface;
 
 namespace QuizzPractice.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class QuizController : ControllerBase
+    public class QuestionController : ControllerBase
     {
-        private readonly IQuizService _quizService;
+        private readonly IQuestionService _questionService;
 
-        public QuizController(IQuizService quizService)
+        public QuestionController(IQuestionService questionService)
         {
-            _quizService = quizService;
+            _questionService = questionService;
         }
-
         [EnableQuery]
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var quizzes =  await _quizService.FindAll();
-
-            return Ok(quizzes);
+            var questions = await _questionService.FindAll();
+            return Ok(questions);
         }
 
         [HttpGet("{id}")]
@@ -32,8 +29,8 @@ namespace QuizzPractice.Controllers
         {
             try
             {
-                var quiz = await _quizService.FindQuizById(id);
-                return Ok(quiz);
+                var question = await _questionService.FindQuestionById(id);
+                return Ok(question);
             }
             catch (Exception ex)
             {
@@ -42,12 +39,13 @@ namespace QuizzPractice.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddQuiz([FromBody] CreateQuizRequest request)
+        public async Task<IActionResult> AddQuestion([FromBody] CreateQuestionRequest request)
         {
+
             try
             {
-                var response = await _quizService.CreateQuiz(request);
-                return CreatedAtAction(nameof(Get), new { id = response.QuizId }, response);
+                var response = await _questionService.CreateQuestion(request);
+                return CreatedAtAction(nameof(GetById), new { id = response.QuestionId }, response);
             }
             catch (Exception ex)
             {
@@ -55,12 +53,14 @@ namespace QuizzPractice.Controllers
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateQuiz([FromBody] UpdateQuizRequest request, int quizId)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateQuestion(int id, [FromBody] UpdateQuestionRequest request)
         {
+
+
             try
             {
-                var response = await _quizService.UpdateQuiz(request, quizId);
+                var response = await _questionService.UpdateQuestion(request, id);
                 return Ok(response);
             }
             catch (Exception ex)
@@ -70,11 +70,11 @@ namespace QuizzPractice.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteQuiz(int id)
+        public async Task<IActionResult> DeleteQuestion(int id)
         {
             try
             {
-                var result = await _quizService.DeleteQuiz(id);
+                var result = await _questionService.DeleteQuestion(id);
                 if (result)
                 {
                     return NoContent();
