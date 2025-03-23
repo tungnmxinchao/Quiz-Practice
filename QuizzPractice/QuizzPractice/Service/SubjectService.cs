@@ -4,6 +4,7 @@ using QuizzPractice.Db;
 using QuizzPractice.Db.Models;
 using QuizzPractice.DTOs.Request;
 using QuizzPractice.DTOs.Response;
+using QuizzPractice.Helper;
 using QuizzPractice.Interface;
 using QuizzPractice.Utils;
 
@@ -13,11 +14,14 @@ namespace QuizzPractice.Service
     {
         private readonly QuizDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SubjectService(QuizDbContext context, IMapper mapper)
+        public SubjectService(QuizDbContext context, IMapper mapper,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<GetSubjectResponse> CreateSubject(CreateSubjectRequest request)
@@ -29,8 +33,14 @@ namespace QuizzPractice.Service
                 throw new Exception("Subject not found!");
             }
 
-            //example teacher id = 1
-            subject.CreatedBy = 1;
+            int userId = JwtHelper.GetUserIdFromJwt(_httpContextAccessor.HttpContext);
+
+            if (userId == -1)
+            {
+                throw new UnauthorizedAccessException("User ID not found in JWT.");
+            }
+  
+            subject.CreatedBy = userId;
 
             await _context.AddAsync(subject);
 
@@ -86,7 +96,14 @@ namespace QuizzPractice.Service
 
             _mapper.Map(request, subject);
 
-            subject.CreatedBy = 1;
+            int userId = JwtHelper.GetUserIdFromJwt(_httpContextAccessor.HttpContext);
+
+            if (userId == -1)
+            {
+                throw new UnauthorizedAccessException("User ID not found in JWT.");
+            }
+
+            subject.CreatedBy = userId;
 
             await _context.SaveChangesAsync();
 

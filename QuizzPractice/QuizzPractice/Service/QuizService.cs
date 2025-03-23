@@ -4,6 +4,7 @@ using QuizzPractice.Db;
 using QuizzPractice.Db.Models;
 using QuizzPractice.DTOs.Request;
 using QuizzPractice.DTOs.Response;
+using QuizzPractice.Helper;
 using QuizzPractice.Interface;
 using QuizzPractice.Utils;
 
@@ -13,11 +14,12 @@ namespace QuizzPractice.Service
     {
         private readonly QuizDbContext _context;
         private readonly IMapper _mapper;
-
-        public QuizService(QuizDbContext context, IMapper mapper)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public QuizService(QuizDbContext context, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<List<GetQuizResponse>> FindAll()
@@ -36,8 +38,14 @@ namespace QuizzPractice.Service
 
             string code = GenerateData.GenerateRandomCode();
 
-            //example teacher id = 1
-            quiz.TeacherId = 1;
+            int userId = JwtHelper.GetUserIdFromJwt(_httpContextAccessor.HttpContext);
+
+            if (userId == -1)
+            {
+                throw new UnauthorizedAccessException("User ID not found in JWT.");
+            }
+            quiz.TeacherId = userId;
+
             quiz.QuizCode = code;
 
 
@@ -68,7 +76,14 @@ namespace QuizzPractice.Service
 
             _mapper.Map(request, quiz);
 
-            quiz.TeacherId = 1;
+            int userId = JwtHelper.GetUserIdFromJwt(_httpContextAccessor.HttpContext);
+
+            if (userId == -1)
+            {
+                throw new UnauthorizedAccessException("User ID not found in JWT.");
+            }
+
+            quiz.TeacherId = userId;
 
             await _context.SaveChangesAsync();
 

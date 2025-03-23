@@ -4,6 +4,7 @@ using QuizzPractice.Db;
 using QuizzPractice.Db.Models;
 using QuizzPractice.DTOs.Request;
 using QuizzPractice.DTOs.Response;
+using QuizzPractice.Helper;
 using QuizzPractice.Interface;
 
 namespace QuizzPractice.Service
@@ -13,11 +14,14 @@ namespace QuizzPractice.Service
 
         private readonly QuizDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public QuestionService(QuizDbContext context, IMapper mapper)
+        public QuestionService(QuizDbContext context, IMapper mapper,
+            IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<GetQuestionResponse> CreateQuestion(CreateQuestionRequest request)
@@ -29,7 +33,14 @@ namespace QuizzPractice.Service
                 throw new Exception("Question not found!");
             }
 
-            question.CreatedBy = 1;
+            int userId = JwtHelper.GetUserIdFromJwt(_httpContextAccessor.HttpContext);
+
+            if (userId == -1)
+            {
+                throw new UnauthorizedAccessException("User ID not found in JWT.");
+            }
+
+            question.CreatedBy = userId;
 
             if (question.Options != null)
             {

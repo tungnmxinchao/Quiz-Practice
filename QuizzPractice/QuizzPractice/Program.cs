@@ -39,6 +39,8 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddHttpContextAccessor();
+
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 builder.Services.AddAuthentication(options =>
 {
