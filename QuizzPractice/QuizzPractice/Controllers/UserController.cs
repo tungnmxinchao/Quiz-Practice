@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using QuizzPractice.DTOs.Request;
 using QuizzPractice.Interface;
 
@@ -46,6 +47,7 @@ namespace QuizzPractice.Controllers
             }
         }
 
+        [Authorize(Policy = "TeacherOrStudent")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserById(int id)
         {
@@ -65,8 +67,10 @@ namespace QuizzPractice.Controllers
             }
         }
 
+        [Authorize(Policy = "Teacher")]
+        [EnableQuery]
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> Get()
         {
             try
             {
@@ -79,6 +83,7 @@ namespace QuizzPractice.Controllers
             }
         }
 
+        [Authorize(Policy = "TeacherOrStudent")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserRequest request)
         {

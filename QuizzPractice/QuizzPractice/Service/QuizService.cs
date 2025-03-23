@@ -99,6 +99,30 @@ namespace QuizzPractice.Service
             return true;
         }
 
+        public Task<bool> JoinQuiz(string quizCode, int quizId)
+        {
+            var quiz = _context.Quizzes
+                 .FirstOrDefault(c => c.QuizCode.Equals(quizCode) && c.QuizId == quizId);
 
+            if (quiz == null)
+            {
+                return Task.FromResult(false);
+            }
+
+            return Task.FromResult(true);
+        }
+
+        public async Task<QuizCodeResponse> GetQuizCode(int quizId)
+        {
+            var quiz = await _context.Quizzes.FirstOrDefaultAsync(x => x.QuizId == quizId);
+
+            QuizCodeResponse response = new QuizCodeResponse()
+            {
+                QuizId = quizId,
+                Code = quiz.QuizCode
+            };
+
+            return response;
+        }
     }
 }

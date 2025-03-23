@@ -26,8 +26,18 @@ builder.Services.AddTransient<ISubjectService, SubjectService>();
 builder.Services.AddTransient<IQuestionService, QuestionService>();
 builder.Services.AddTransient<IResultService, ResultService>();
 builder.Services.AddTransient<IUserService, UserService>();
+builder.Services.AddTransient<IOptionService, OptionService>();
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+        });
+});
 
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 builder.Services.AddAuthentication(options =>
@@ -54,6 +64,9 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Teacher", policy => policy.RequireRole("teacher"));
     options.AddPolicy("Student", policy => policy.RequireRole("student"));
+
+    options.AddPolicy("TeacherOrStudent", policy =>
+        policy.RequireRole("teacher", "student"));
 });
 
 builder.Services.AddControllers();
@@ -88,6 +101,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
@@ -113,6 +127,9 @@ static IEdmModel GetEdmModel()
 
     var results = builder.EntitySet<GetResultsResponse>("Result").EntityType;
     results.HasKey(r => r.ResultId);
+
+    var users = builder.EntitySet<GetUserResponse>("User").EntityType;
+    users.HasKey(u => u.UserId);
 
     return builder.GetEdmModel();
 }

@@ -1,11 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using QuizzPractice.DTOs.Request;
 using QuizzPractice.Interface;
 
 namespace QuizzPractice.Controllers
-{
+{ 
     [Route("api/[controller]")]
     [ApiController]
     public class QuestionController : ControllerBase
@@ -16,6 +17,8 @@ namespace QuizzPractice.Controllers
         {
             _questionService = questionService;
         }
+
+        [Authorize(Policy = "TeacherOrStudent")]
         [EnableQuery]
         [HttpGet]
         public async Task<IActionResult> Get()
@@ -24,6 +27,7 @@ namespace QuizzPractice.Controllers
             return Ok(questions);
         }
 
+        [Authorize(Policy = "TeacherOrStudent")]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
@@ -38,6 +42,7 @@ namespace QuizzPractice.Controllers
             }
         }
 
+        [Authorize(Policy = "Teacher")]
         [HttpPost]
         public async Task<IActionResult> AddQuestion([FromBody] CreateQuestionRequest request)
         {
@@ -53,6 +58,7 @@ namespace QuizzPractice.Controllers
             }
         }
 
+        [Authorize(Policy = "Teacher")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateQuestion(int id, [FromBody] UpdateQuestionRequest request)
         {
@@ -69,6 +75,7 @@ namespace QuizzPractice.Controllers
             }
         }
 
+        [Authorize(Policy = "Teacher")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteQuestion(int id)
         {

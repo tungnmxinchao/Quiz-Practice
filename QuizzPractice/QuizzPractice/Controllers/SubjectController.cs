@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Query;
 using QuizzPractice.DTOs.Request;
@@ -40,6 +41,7 @@ namespace QuizzPractice.Controllers
             }
         }
 
+        [Authorize(Policy = "Teacher")]
         [HttpPost]
         public async Task<IActionResult> AddSubject([FromBody] CreateSubjectRequest request)
         {
@@ -54,6 +56,7 @@ namespace QuizzPractice.Controllers
             }
         }
 
+        [Authorize(Policy = "Teacher")]
         [HttpPut]
         public async Task<IActionResult> UpdateSubject([FromBody] UpdateSubjectRequest request, int subjectId)
         {

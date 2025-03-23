@@ -19,6 +19,7 @@ namespace QuizzPractice.Controllers
             _resultService = resultService;
         }
 
+        [Authorize(Policy = "Student")]
         [HttpPost]
         public async Task<IActionResult> AddResult([FromBody] AddResultRequest request)
         {
@@ -47,7 +48,7 @@ namespace QuizzPractice.Controllers
 
         [EnableQuery]
         [HttpGet]
-        public async Task<IActionResult> GetAllResults()
+        public async Task<IActionResult> Get()
         {
             var results = await _resultService.FindAllResults();
             return Ok(results);

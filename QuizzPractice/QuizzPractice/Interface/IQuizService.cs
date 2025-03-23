@@ -12,5 +12,9 @@ namespace QuizzPractice.Interface
         public Task<GetQuizResponse> UpdateQuiz(UpdateQuizRequest request, int quizId);
         Task<GetQuizResponse> FindQuizById(int id);
         Task<bool> DeleteQuiz(int id);
+
+        Task<bool> JoinQuiz(string quizCode, int quizId);
+
+        Task<QuizCodeResponse> GetQuizCode(int quizId);
     }
 }

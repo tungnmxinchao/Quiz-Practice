@@ -46,6 +46,8 @@ namespace QuizzPractice.Mapper
             CreateMap<User, RegisterRequest>().ReverseMap();
             CreateMap<User, UpdateUserRequest>().ReverseMap();
 
+            CreateMap<Option, GetOptionResponse>().ReverseMap();
+
 
         }
     }
