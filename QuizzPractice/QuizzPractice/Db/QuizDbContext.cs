@@ -43,7 +43,13 @@ namespace QuizzPractice.Db
                 .HasMaxLength(10)
                 .HasDefaultValue("active");
 
-         
+            modelBuilder.Entity<Option>()
+                .HasOne(o => o.Question)
+                .WithMany(q => q.Options)
+                .HasForeignKey(o => o.QuestionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+
             modelBuilder.Entity<Question>()
                 .Property(q => q.QuestionType)
                 .HasConversion<string>()
@@ -58,7 +64,6 @@ namespace QuizzPractice.Db
                 .HasMaxLength(10)
                 .HasDefaultValue("active");
 
-     
             modelBuilder.Entity<Option>()
                 .Property(o => o.Status)
                 .HasConversion<string>()
